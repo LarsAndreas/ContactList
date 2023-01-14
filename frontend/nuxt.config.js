@@ -19,6 +19,20 @@ export default {
     ]
   },
 
+  publicRuntimeConfig: {
+    base_url: 'https://test.softrig.com/api/',
+    authority: 'https://test-login.softrig.com',
+    client_id: '9abfff16-5e55-4c08-af1b-9dc711aa6d8d',
+    redirect_uri: 'http://localhost:3000/auth',
+    post_logout_redirect_uri: 'http://localhost:3000/login',
+    silent_redirect_uri: 'http://localhost:3000/silent_renew',
+    automaticSilentRenew: true,
+    response_type: 'code',
+    scope: 'openid profile AppFramework',
+    filterProtocolClaims: true, // prevents protocol level claims such as nbf, iss, at_hash, and nonce from being extracted from the identity token as profile data
+    loadUserInfo: true
+  },
+
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
   ],
