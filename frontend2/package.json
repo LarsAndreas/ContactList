@@ -15,7 +15,6 @@
     "tailwindcss": "^3.2.4"
   },
   "dependencies": {
-    "@vue-hero-icons/outline": "^1.7.2",
     "oidc-client": "^1.11.5"
   }
 }

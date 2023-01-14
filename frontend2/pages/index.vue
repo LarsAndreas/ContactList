@@ -1,5 +1,5 @@
 <template>
-  <div class="w-screen h-screen bg-gray-50">
+  <div class="w-screen h-screen bg-gray-100">
     <div class="container w-full md:w-4/5 xl:w-3/5 mx-auto px-2">
       <div class="px-4 md:px-10 py-4 md:py-7">
         <div class="flex items-center justify-between">
@@ -22,14 +22,16 @@
               required
             />
           </div>
-          <button
-            onclick="popuphandler(true)"
-            class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 mt-4 sm:mt-0 inline-flex items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded"
-          >
-            <p class="text-sm font-medium leading-none text-white">
-              Opprett ny kontakt
-            </p>
-          </button>
+          <NuxtLink to="/contacts/create">
+            <button
+              onclick="popuphandler(true)"
+              class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 mt-4 sm:mt-0 inline-flex items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded"
+            >
+              <p class="text-sm font-medium leading-none text-white">
+                Opprett ny kontakt
+              </p>
+            </button>
+          </NuxtLink>
         </div>
 
         <div class="mt-7 overflow-x-auto">
@@ -37,23 +39,46 @@
             <tbody>
               <tr
                 v-for="contact in contacts"
-                class="h-16 border-4 border-gray-300 rounded hover:bg-slate-50"
+                class="h-16 border border-gray-300 rounded hover:bg-slate-50"
               >
-                <td class="pl-4">
-                  {{ contact?.Info?.Name ?? "???" }}
+                <td class="ml-4">
+                  <NuxtLink :to="'/contacts/' + contact.ID">
+                    <div class="flex">
+                      <SvgUserOutline />
+                      <span class="ml-2">{{
+                        contact?.Info?.Name ?? "???"
+                      }}</span>
+                    </div>
+                  </NuxtLink>
                 </td>
-                <td class="pl-4">
-                  <a
-                    :href="
-                      'mailto:' + contact?.Info?.DefaultEmail?.EmailAddress
-                    "
-                    >{{ contact?.Info?.DefaultEmail?.EmailAddress ?? "???" }}</a
-                  >
+                <td class="ml-4">
+                  <NuxtLink :to="'/contacts/' + contact.ID">
+                    <div class="flex">
+                      <SvgEnvelopeOutline />
+                      <a
+                        class="ml-2 text-blue-600 hover:underline"
+                        :href="
+                          'mailto:' + contact?.Info?.DefaultEmail?.EmailAddress
+                        "
+                        >{{
+                          contact?.Info?.DefaultEmail?.EmailAddress ?? "???"
+                        }}</a
+                      >
+                    </div>
+                  </NuxtLink>
                 </td>
-                <td class="pl-4">
-                  <a :href="'tel:' + contact?.Info?.DefaultPhone?.Number">
-                    {{ contact?.Info?.DefaultPhone?.Number ?? "???" }}
-                  </a>
+                <td class="ml-4">
+                  <NuxtLink :to="'/contacts/' + contact.ID">
+                    <div class="flex">
+                      <SvgPhoneOutline />
+                      <a
+                        class="ml-2 text-blue-600 hover:underline"
+                        :href="'tel:' + contact?.Info?.DefaultPhone?.Number"
+                      >
+                        {{ contact?.Info?.DefaultPhone?.Number ?? "???" }}
+                      </a>
+                    </div>
+                  </NuxtLink>
                 </td>
               </tr>
             </tbody>
