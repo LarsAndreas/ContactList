@@ -44,4 +44,5 @@ export interface ContactListDto {
     ID: number;
     InfoID: number;
     Info: Info;
+    Comment: string;
 }

@@ -9,7 +9,7 @@
             id="first_name"
             class="hover:bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             placeholder="Søk etter kontakter"
-            required
+            :value="search"
           />
         </div>
         <NuxtLink to="/contacts/create">
@@ -77,28 +77,41 @@
 </template>
 
 <script setup lang="ts">
+import { useDebounce } from "@vueuse/core";
+import { ComputedRef, Ref } from "vue";
 import { ContactListDto } from "../services/interfaces";
+
+const search = ref("");
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.base_url;
 
 const cookie = useCookie("accessToken");
 
-var response = await fetch(
-  `${baseUrl}/biz/contacts?expand=Info,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,Info.DefaultAddress&hateoas=false&top=10`,
-  {
-    headers: {
-      Authorization: `Bearer ${cookie.value}`,
-      "Content-Type": "application/json",
-    },
+let contacts: Ref<ContactListDto[]> = ref([]);
+
+const readContacts = () => {
+  const response = fetch(
+    `${baseUrl}/biz/contacts?expand=Info,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,Info.DefaultAddress&hateoas=false&top=10&filter=contains(Info.Name, '')
+    `,
+    {
+      headers: {
+        Authorization: `Bearer ${cookie.value}`,
+        "Content-Type": "application/json",
+      },
+    }
+  )
+    .then((response) => response.json())
+    .then((json) => (contacts.value = json));
+};
+
+readContacts();
+
+const debounced = useDebounce(search, 300);
+watch(
+  () => debounced.value,
+  (newValue, oldValue) => {
+    readContacts();
   }
 );
-
-const contacts: ContactListDto[] = await response.json();
-
-console.log(contacts);
-
-const contact = contacts[0];
-
-const name = contact.Info.Name;
 </script>
