@@ -105,7 +105,6 @@ import { ContactListDto } from "../services/interfaces";
 
 definePageMeta({
   middleware: ["auth"],
-  // or middleware: 'auth'
 });
 
 let page = ref(0);
