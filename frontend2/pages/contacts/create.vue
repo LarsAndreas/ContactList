@@ -1,5 +1,5 @@
 <template>
-  <Heading> Kontakt detaljer </Heading>
+  <Heading> Opprett Kontakt </Heading>
   <PageWrapper>
     <FormRow>
       <FormElement>
@@ -141,54 +141,30 @@ import { ContactListDto } from "~~/services/interfaces";
 const route = useRoute();
 const router = useRouter();
 
-const id = route.params.id;
-
 const config = useRuntimeConfig();
-const baseUrl = config.public.base_url;
-
-const cookie = useCookie("accessToken");
-
-const response = await fetch(
-  `${baseUrl}/biz/contacts/${id}?expand=Info,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,Info.DefaultAddress`,
-  {
-    headers: {
-      Authorization: `Bearer ${cookie.value}`,
-      "Content-Type": "application/json",
-    },
-  }
-);
-
-let contact: ContactListDto = await response.json();
-
-console.log(contact);
 
 let dto = ref({
-  ID: id,
   Info: {
-    ID: contact?.Info?.ID,
-    Name: contact?.Info?.Name ?? "",
+    Name: "",
     InvoiceAddress: {
-      ID: contact?.Info?.InvoiceAddressID,
-      AddressLine1: contact?.Info?.InvoiceAddress?.AddressLine1 ?? "",
-      AddressLine2: contact?.Info?.InvoiceAddress?.AddressLine2 ?? "",
-      AddressLine3: contact?.Info?.InvoiceAddress?.AddressLine3 ?? "",
-      City: contact?.Info?.InvoiceAddress?.City ?? "",
-      Country: contact?.Info?.InvoiceAddress?.Country ?? "",
-      CountryCode: contact?.Info?.InvoiceAddress?.CountryCode ?? "",
-      PostalCode: contact?.Info?.InvoiceAddress?.PostalCode ?? "",
+      AddressLine1: "",
+      AddressLine2: "",
+      AddressLine3: "",
+      City: "",
+      Country: "",
+      CountryCode: "",
+      PostalCode: "",
     },
     DefaultPhone: {
-      ID: contact?.Info?.DefaultPhoneID,
-      CountryCode: contact?.Info?.DefaultPhone?.CountryCode ?? "",
-      Description: contact?.Info?.DefaultPhone?.Description ?? "",
-      Number: contact?.Info?.DefaultPhone?.Number ?? "",
+      CountryCode: "",
+      Description: "",
+      Number: "",
     },
     DefaultEmail: {
-      ID: contact?.Info?.DefaultEmailID,
-      EmailAddress: contact?.Info?.DefaultEmail?.EmailAddress ?? "",
+      EmailAddress: "",
     },
   },
-  Comment: contact?.Comment ?? "",
+  Comment: "",
 });
 
 const save = async () => {
@@ -196,8 +172,8 @@ const save = async () => {
   const baseUrl = config.public.base_url;
   const cookie = useCookie("accessToken");
 
-  await fetch(`${baseUrl}/biz/contacts/${id}`, {
-    method: "PUT",
+  await fetch(`${baseUrl}/biz/contacts`, {
+    method: "POST",
     headers: {
       Authorization: `Bearer ${cookie.value}`,
       "Content-Type": "application/json",

@@ -9,18 +9,15 @@
             id="first_name"
             class="hover:bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             placeholder="Søk etter kontakter"
-            :value="search"
+            v-model="search"
+            @input="
+              $emit('update:modelValue', $event.target.value);
+              readContacts();
+            "
           />
         </div>
         <NuxtLink to="/contacts/create">
-          <button
-            onclick="popuphandler(true)"
-            class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 mt-4 sm:mt-0 inline-flex items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded"
-          >
-            <p class="text-sm font-medium leading-none text-white">
-              Opprett ny kontakt
-            </p>
-          </button>
+          <Button> Opprett ny kontakt </Button>
         </NuxtLink>
       </div>
 
@@ -35,7 +32,9 @@
                 <NuxtLink :to="'/contacts/' + contact.ID">
                   <div class="flex">
                     <SvgUserOutline />
-                    <span class="ml-2">{{ contact?.Info?.Name ?? "???" }}</span>
+                    <span v-if="contact?.Info?.Name" class="ml-2">{{
+                      contact?.Info?.Name
+                    }}</span>
                   </div>
                 </NuxtLink>
               </td>
@@ -45,12 +44,9 @@
                     <SvgEnvelopeOutline />
                     <a
                       class="ml-2 text-blue-600 hover:underline"
-                      :href="
-                        'mailto:' + contact?.Info?.DefaultEmail?.EmailAddress
-                      "
-                      >{{
-                        contact?.Info?.DefaultEmail?.EmailAddress ?? "???"
-                      }}</a
+                      v-if="contact?.Info?.DefaultEmail?.EmailAddress"
+                      :href="`mailto:${contact?.Info?.DefaultEmail?.EmailAddress}`"
+                      >{{ contact?.Info?.DefaultEmail?.EmailAddress }}</a
                     >
                   </div>
                 </NuxtLink>
@@ -61,9 +57,15 @@
                     <SvgPhoneOutline />
                     <a
                       class="ml-2 text-blue-600 hover:underline"
-                      :href="'tel:' + contact?.Info?.DefaultPhone?.Number"
+                      v-if="
+                        contact?.Info?.DefaultPhone?.CountryCode &&
+                        contact?.Info?.DefaultPhone?.Number
+                      "
+                      :href="`tel:${contact?.Info?.DefaultPhone?.CountryCode} ${contact?.Info?.DefaultPhone?.Number}`"
                     >
-                      {{ contact?.Info?.DefaultPhone?.Number ?? "???" }}
+                      {{
+                        `${contact?.Info?.DefaultPhone?.CountryCode} ${contact?.Info?.DefaultPhone?.Number}`
+                      }}
                     </a>
                   </div>
                 </NuxtLink>
@@ -71,6 +73,17 @@
             </tr>
           </tbody>
         </table>
+      </div>
+      <div>
+        <Pagination
+          class="mt-4"
+          @update="
+            (pageCount: number) => {
+              page = pageCount;
+              readContacts();
+            }
+          "
+        />
       </div>
     </PageWrapper>
   </div>
@@ -81,6 +94,7 @@ import { useDebounce } from "@vueuse/core";
 import { ComputedRef, Ref } from "vue";
 import { ContactListDto } from "../services/interfaces";
 
+let page = ref(0);
 const search = ref("");
 
 const config = useRuntimeConfig();
@@ -92,7 +106,9 @@ let contacts: Ref<ContactListDto[]> = ref([]);
 
 const readContacts = () => {
   const response = fetch(
-    `${baseUrl}/biz/contacts?expand=Info,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,Info.DefaultAddress&hateoas=false&top=10&filter=contains(Info.Name, '')
+    `${baseUrl}/biz/contacts?expand=Info,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,Info.DefaultAddress&hateoas=false&skip=${
+      10 * page.value
+    }&top=10&filter=contains(Info.Name, '${search.value}')
     `,
     {
       headers: {
