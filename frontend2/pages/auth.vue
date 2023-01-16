@@ -11,6 +11,7 @@ mgr.userManager.signinRedirectCallback().then(
   async (user: User) => {
     const cookie = useCookie("accessToken");
     cookie.value = user.access_token;
+    console.log("Logged in...");
     router.push("/");
   },
   (error) => {
