@@ -132,9 +132,14 @@
   </PageWrapper>
 </template>
 
+<style>
+@import url(toastr);
+</style>
+
 <script setup lang="ts">
 import { Ref } from "vue";
 import { ContactListDto } from "~~/services/interfaces";
+import toastr from "toastr";
 
 definePageMeta({
   middleware: ["auth"],
@@ -161,8 +166,6 @@ const response = await fetch(
 );
 
 let contact: ContactListDto = await response.json();
-
-console.log(contact);
 
 let dto = ref({
   ID: id,
@@ -206,9 +209,19 @@ const save = async (event: any) => {
     },
     body: JSON.stringify(dto.value),
   })
-    .then(() => {
-      router.push("/");
+    .then((response) => {
+      if (response.ok) {
+        toastr.success(
+          `Kontakten heter ${dto.value.Info.Name}`,
+          "Vellykket oppdatering av kontakt"
+        );
+        router.push("/");
+      } else {
+        toastr.error("Kontakt administrator av systemet", "Oppdateringsfeil");
+      }
     })
-    .catch(); //TODO: Add Toaster
+    .catch((error) => {
+      toastr.error("Kontakt administrator av systemet", "Oppdateringsfeil");
+    });
 };
 </script>

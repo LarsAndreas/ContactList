@@ -23,7 +23,7 @@
             <th>
               <div
                 @click="sortBy(SortType.Name)"
-                class="flex items-center p-4 h-8 hover:bg-slate-50"
+                class="flex items-center p-4 h-8 hover:bg-slate-50 cursor-pointer"
               >
                 Name
                 <SvgBarsArrowUpOutline
@@ -45,7 +45,7 @@
             <th>
               <div
                 @click="sortBy(SortType.Email)"
-                class="flex items-center p-4 h-8 hover:bg-slate-50"
+                class="flex items-center p-4 h-8 hover:bg-slate-50 cursor-pointer"
               >
                 Epost
                 <SvgBarsArrowUpOutline
@@ -65,7 +65,7 @@
             <th>
               <div
                 @click="sortBy(SortType.PhoneNumber)"
-                class="flex items-center p-4 h-8 hover:bg-slate-50"
+                class="flex items-center p-4 h-8 hover:bg-slate-50 cursor-pointer"
               >
                 Telefon nummer
                 <SvgBarsArrowUpOutline
@@ -254,7 +254,9 @@ const readContacts = () => {
       },
     }
   )
-    .then((response) => response.json())
+    .then((response) => {
+      return response.json();
+    })
     .then((json) => (contacts.value = json));
 };
 

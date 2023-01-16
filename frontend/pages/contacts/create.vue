@@ -132,9 +132,14 @@
   </PageWrapper>
 </template>
 
+<style>
+@import url(toastr);
+</style>
+
 <script setup lang="ts">
 import { Ref } from "vue";
 import { ContactListDto } from "~~/services/interfaces";
+import toastr from "toastr";
 
 definePageMeta({
   middleware: ["auth"],
@@ -182,9 +187,19 @@ const save = async () => {
     },
     body: JSON.stringify(dto.value),
   })
-    .then(() => {
-      router.push("/");
+    .then((response) => {
+      if (response.ok) {
+        toastr.success(
+          `Kontakten heter ${dto.value.Info.Name}`,
+          "Vellykket opprettelse av kontakt"
+        );
+        router.push("/");
+      } else {
+        toastr.error("Kontakt administrator av systemet", "Opprettelsesfeil");
+      }
     })
-    .catch(); //TODO: Add Toaster
+    .catch((error) => {
+      toastr.error("Kontakt administrator av systemet", "Opprettelsesfeil");
+    });
 };
 </script>
