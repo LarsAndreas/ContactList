@@ -19,6 +19,70 @@
 
       <div class="mt-7 overflow-x-auto">
         <table class="border-separate border-spacing-y-2 w-full">
+          <thead>
+            <th>
+              <div
+                @click="sortBy(SortType.Name)"
+                class="flex items-center p-4 h-8 hover:bg-slate-50"
+              >
+                Name
+                <SvgBarsArrowUpOutline
+                  class="ml-2"
+                  v-if="
+                    sortDirection == SortDirection.Ascending &&
+                    sortType == SortType.Name
+                  "
+                />
+                <SvgBarsArrowDownOutline
+                  class="ml-2"
+                  v-if="
+                    sortDirection == SortDirection.Descending &&
+                    sortType == SortType.Name
+                  "
+                />
+              </div>
+            </th>
+            <th>
+              <div
+                @click="sortBy(SortType.Email)"
+                class="flex items-center p-4 h-8 hover:bg-slate-50"
+              >
+                Epost
+                <SvgBarsArrowUpOutline
+                  v-if="
+                    sortDirection == SortDirection.Ascending &&
+                    sortType == SortType.Email
+                  "
+                />
+                <SvgBarsArrowDownOutline
+                  v-if="
+                    sortDirection == SortDirection.Descending &&
+                    sortType == SortType.Email
+                  "
+                />
+              </div>
+            </th>
+            <th>
+              <div
+                @click="sortBy(SortType.PhoneNumber)"
+                class="flex items-center p-4 h-8 hover:bg-slate-50"
+              >
+                Telefon nummer
+                <SvgBarsArrowUpOutline
+                  v-if="
+                    sortDirection == SortDirection.Ascending &&
+                    sortType == SortType.PhoneNumber
+                  "
+                />
+                <SvgBarsArrowDownOutline
+                  v-if="
+                    sortDirection == SortDirection.Descending &&
+                    sortType == SortType.PhoneNumber
+                  "
+                />
+              </div>
+            </th>
+          </thead>
           <tbody>
             <tr
               v-if="contacts.length > 0"
@@ -103,6 +167,20 @@ import { useDebounce } from "@vueuse/core";
 import { ComputedRef, Ref } from "vue";
 import { ContactListDto } from "../services/interfaces";
 
+enum SortDirection {
+  Ascending,
+  Descending,
+}
+
+enum SortType {
+  Name,
+  Email,
+  PhoneNumber,
+}
+
+let sortDirection = ref(SortDirection.Ascending);
+let sortType = ref(SortType.Name);
+
 definePageMeta({
   middleware: ["auth"],
 });
@@ -117,11 +195,57 @@ const cookie = useCookie("accessToken");
 
 let contacts: Ref<ContactListDto[]> = ref([]);
 
+const sortBy = (type: SortType) => {
+  if (type == sortType.value) {
+    switch (sortDirection.value) {
+      case SortDirection.Ascending:
+        sortDirection.value = SortDirection.Descending;
+        break;
+      case SortDirection.Descending:
+        sortType.value = SortType.Name;
+        sortDirection.value = SortDirection.Ascending;
+        break;
+    }
+  } else {
+    sortType.value = type;
+    sortDirection.value = SortDirection.Ascending;
+  }
+  readContacts();
+};
+
+const orderBy = computed(() => {
+  let value = "";
+  switch (sortType.value) {
+    case SortType.Name:
+      value += "Info.Name";
+      break;
+    case SortType.Email:
+      value += "Info.DefaultEmail.EmailAddress";
+      break;
+    case SortType.PhoneNumber:
+      value += "Info.DefaultPhone.Number";
+      break;
+  }
+
+  switch (sortDirection.value) {
+    case SortDirection.Ascending:
+      value += " asc";
+      break;
+    case SortDirection.Descending:
+      value += " desc";
+      break;
+  }
+
+  return value;
+});
+
 const readContacts = () => {
   const response = fetch(
     `${baseUrl}/biz/contacts?expand=Info,Info.InvoiceAddress,Info.DefaultPhone,Info.DefaultEmail,Info.DefaultAddress&hateoas=false&skip=${
       7 * page.value
-    }&top=7&filter=contains(Info.Name, '${search.value}')
+    }&top=7&filter=contains(Info.Name, '${search.value}')&orderby=${
+      orderBy.value
+    }
     `,
     {
       headers: {
